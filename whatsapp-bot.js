@@ -28,7 +28,11 @@ function getSpreadsheetId(urlOrId) {
 
 const spreadsheetId = getSpreadsheetId(process.env.GOOGLE_SHEETS_ID);
 const registrationKeyword = process.env.REGISTRATION_KEYWORD || "daftar";
-const encryptionKey = process.env.ENCRYPTION_KEY;
+const encryptionKey = crypto
+  .createHash("sha256")
+  .update(String(process.env.ENCRYPTION_KEY))
+  .digest("base64")
+  .slice(0, 32);
 const awsPublicIp = process.env.AWS_PUBLIC_IP;
 const attendantLimit = process.env.ATTENDANT_LIMIT || 80;
 
