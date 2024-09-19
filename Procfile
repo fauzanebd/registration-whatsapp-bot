@@ -1,1 +1,1 @@
-worker: node whatsapp-bot.js
+worker: npm start
