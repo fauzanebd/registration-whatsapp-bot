@@ -170,12 +170,19 @@ client.on("message", async (message) => {
       );
     }
   } else {
-    await message.reply(
-      `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
-    );
-    console.log(
-      `Message does not end with "${registrationKeyword}", replying with hints.`
-    );
+    // if messaege not empty
+    if (message.body.length > 0) {
+      await message.reply(
+        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+      );
+      console.log(
+        `Message does not end with "${registrationKeyword}", replying with hints.`
+      );
+    } else {
+      console.log(
+        `Message does not end with "${registrationKeyword}", ignoring.`
+      );
+    }
   }
 });
 
