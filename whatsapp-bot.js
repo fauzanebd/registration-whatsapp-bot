@@ -2,6 +2,9 @@ require("dotenv").config();
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const { google } = require("googleapis");
+const crypto = require("crypto");
+const axios = require("axios");
+const qr = require("qrcode");
 
 // Initialize the WhatsApp client with local authentication
 const client = new Client({
@@ -25,21 +28,64 @@ function getSpreadsheetId(urlOrId) {
 
 const spreadsheetId = getSpreadsheetId(process.env.GOOGLE_SHEETS_ID);
 const registrationKeyword = process.env.REGISTRATION_KEYWORD || "daftar";
+const encryptionKey = process.env.ENCRYPTION_KEY;
+const awsPublicIp = process.env.AWS_PUBLIC_IP;
+const attendantLimit = process.env.ATTENDANT_LIMIT || 80;
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(encryptionKey),
+    iv
+  );
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+async function getRowCount() {
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range: "Sheet1!A:A",
+  });
+  return response.data.values ? response.data.values.length : 0;
+}
 
 // Function to append data to Google Sheets
 async function appendToSheet(data) {
   try {
-    const response = await sheets.spreadsheets.values.append({
+    const rowCount = await getRowCount();
+    if (rowCount >= attendantLimit + 1) {
+      return {
+        success: false,
+        message: "Maaf, kuota peserta nobar telah terpenuhi",
+      };
+    }
+
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: "Sheet1", // Adjust if your sheet has a different name
+      range: "Sheet1",
       valueInputOption: "USER_ENTERED",
       resource: {
         values: [data],
       },
     });
+
+    const encryptedData = encrypt(data.join("|"));
+    const verificationUrl = `http://${awsPublicIp}/registration-verification/${encodeURIComponent(
+      encryptedData
+    )}`;
+    const qrCodeImage = await qr.toDataURL(verificationUrl);
+
     console.log("Data appended successfully");
+    return { success: true, qrCodeImage };
   } catch (error) {
     console.error("Error appending data to sheet:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan, silakan coba lagi nanti",
+    };
   }
 }
 
@@ -62,9 +108,18 @@ client.on("message", async (message) => {
     const parts = message.body.split("_");
     if (parts.length === 4) {
       const [name, address, phoneNumber, keyword] = parts;
-      await appendToSheet([name, address, phoneNumber]);
+      const result = await appendToSheet([name, address, phoneNumber, keyword]);
+
+      if (result.success) {
+        const media = await client.createMediaFromBase64(result.qrCodeImage);
+        await message.reply(media);
+      } else {
+        await message.reply(result.message);
+      }
     } else {
-      console.log("Invalid message format, ignoring.");
+      await message.reply(
+        "Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_daftar"
+      );
     }
   } else {
     console.log(
