@@ -41,6 +41,7 @@ const attendantLimit = process.env.ATTENDANT_LIMIT || 80;
 const QRCodeMessage =
   process.env.QR_CODE_MESSAGE ||
   "Berikut ini adalah QR Code yang akan dipindai oleh petugas untuk memverifikasi status pendaftaran anda. Harap simpan QR code ini baik-baik.";
+const mainContactPerson = process.env.MAIN_CONTACT_PERSON || "";
 
 function encrypt(text) {
   const iv = crypto.randomBytes(16);
@@ -165,12 +166,15 @@ client.on("message", async (message) => {
       }
     } else {
       await message.reply(
-        "Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_daftar"
+        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}[d(lshift)]\n[u(lshift)]Nomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
       );
     }
   } else {
+    await message.reply(
+      `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}[d(lshift)]\n[u(lshift)]Nomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+    );
     console.log(
-      `Message does not end with "${registrationKeyword}", ignoring.`
+      `Message does not end with "${registrationKeyword}", replying with hints.`
     );
   }
 });
