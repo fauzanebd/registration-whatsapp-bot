@@ -6,6 +6,7 @@ const { google } = require("googleapis");
 // Initialize the WhatsApp client with local authentication
 const client = new Client({
   authStrategy: new LocalAuth(),
+  puppeteer: { headless: true },
 });
 
 // Set up Google Sheets API
