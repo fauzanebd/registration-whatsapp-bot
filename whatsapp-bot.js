@@ -56,31 +56,31 @@ async function getRowCount() {
   return response.data.values ? response.data.values.length : 0;
 }
 
+// Function to check if phone number already exists
 async function isPhoneNumberRegistered(phoneNumber) {
   try {
-    // Fetch all phone numbers from the sheet (assuming phone numbers are in column C)
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "Sheet1!C:C", // Adjust the range if phone numbers are in a different column
+      range: "Sheet1!C:C", // Assuming phone numbers are in column C
     });
 
     const phoneNumbers = response.data.values
       ? response.data.values.flat()
       : [];
-    return phoneNumbers.includes(phoneNumber); // Check if the phone number exists
+    return phoneNumbers.includes(phoneNumber);
   } catch (error) {
     console.error("Error checking phone number:", error);
-    return false; // Default to false on error, meaning no duplicate found
+    return false;
   }
 }
 
 // Function to append data to Google Sheets
 async function appendToSheet(data) {
-  const [name, address, phoneNumber] = data;
   try {
-    // Check if the phone number is already registered
-    const isRegistered = await isPhoneNumberRegistered(phoneNumber);
-    if (isRegistered) {
+    const [name, address, phoneNumber] = data;
+
+    // Check if phone number is already registered
+    if (await isPhoneNumberRegistered(phoneNumber)) {
       console.log(`Phone number ${phoneNumber} is already registered`);
       return {
         success: false,
@@ -88,7 +88,6 @@ async function appendToSheet(data) {
       };
     }
 
-    // Proceed if no duplicate found
     const rowCount = await getRowCount();
     if (rowCount >= attendantLimit + 1) {
       return {
