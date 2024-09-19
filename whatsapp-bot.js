@@ -9,7 +9,10 @@ const qr = require("qrcode");
 // Initialize the WhatsApp client with local authentication
 const client = new Client({
   authStrategy: new LocalAuth(),
-  puppeteer: { headless: true },
+  puppeteer: {
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  },
 });
 
 // Set up Google Sheets API
