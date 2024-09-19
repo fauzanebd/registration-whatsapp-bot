@@ -38,6 +38,9 @@ const encryptionKey = crypto
   .slice(0, 32);
 const awsPublicIp = process.env.AWS_PUBLIC_IP;
 const attendantLimit = process.env.ATTENDANT_LIMIT || 80;
+const QRCodeMessage =
+  process.env.QR_CODE_MESSAGE ||
+  "Berikut ini adalah QR Code yang akan dipindai oleh petugas untuk memverifikasi status pendaftaran anda. Harap simpan QR code ini baik-baik.";
 
 function encrypt(text) {
   const iv = crypto.randomBytes(16);
@@ -153,8 +156,10 @@ client.on("message", async (message) => {
           "image/png",
           result.qrCodeImage.split(",")[1]
         );
-        await message.reply(media);
-        // await client.sendMessage(message.from, media);
+        // await message.reply(media);
+        await client.sendMessage(message.from, media, {
+          caption: QRCodeMessage,
+        });
       } else {
         await message.reply(result.message);
       }
