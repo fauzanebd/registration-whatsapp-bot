@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const { google } = require("googleapis");
 const crypto = require("crypto");
@@ -80,6 +80,7 @@ async function appendToSheet(data) {
     const verificationUrl = `http://${awsPublicIp}/registration-verification/${encodeURIComponent(
       encryptedData
     )}`;
+    console.log("Verification URL:", verificationUrl);
     const qrCodeImage = await qr.toDataURL(verificationUrl);
 
     console.log("Data appended successfully");
@@ -111,12 +112,17 @@ client.on("message", async (message) => {
   if (message.body.toLowerCase().endsWith(registrationKeyword.toLowerCase())) {
     const parts = message.body.split("_");
     if (parts.length === 4) {
-      const [name, address, phoneNumber, keyword] = parts;
-      const result = await appendToSheet([name, address, phoneNumber, keyword]);
+      const [name, address, phoneNumber, _] = parts;
+      const result = await appendToSheet([name, address, phoneNumber]);
 
       if (result.success) {
-        const media = await client.createMediaFromBase64(result.qrCodeImage);
+        // const media = await client.createMediaFromBase64(result.qrCodeImage);
+        const media = new MessageMedia(
+          "image/png",
+          result.qrCodeImage.split(",")[1]
+        );
         await message.reply(media);
+        // await client.sendMessage(message.from, media);
       } else {
         await message.reply(result.message);
       }
