@@ -166,12 +166,12 @@ client.on("message", async (message) => {
       }
     } else {
       await message.reply(
-        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}[d(lshift)]\n[u(lshift)]Nomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
       );
     }
   } else {
     await message.reply(
-      `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}[d(lshift)]\n[u(lshift)]Nomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+      `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
     );
     console.log(
       `Message does not end with "${registrationKeyword}", replying with hints.`
