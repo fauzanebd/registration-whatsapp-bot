@@ -144,46 +144,50 @@ client.on("ready", () => {
 client.on("message", async (message) => {
   console.log(`Received message: ${message.body}`);
 
-  // Check if the message ends with the registration keyword
-  if (message.body.toLowerCase().endsWith(registrationKeyword.toLowerCase())) {
-    const parts = message.body.split("_");
-    if (parts.length === 4) {
-      const [name, address, phoneNumber, _] = parts;
-      const result = await appendToSheet([name, address, phoneNumber]);
+  await message.reply(
+    `Maaf, pendaftaran sudah ditutup.\n\nUntuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+  );
 
-      if (result.success) {
-        // const media = await client.createMediaFromBase64(result.qrCodeImage);
-        const media = new MessageMedia(
-          "image/png",
-          result.qrCodeImage.split(",")[1]
-        );
-        // await message.reply(media);
-        await client.sendMessage(message.from, media, {
-          caption: QRCodeMessage,
-        });
-      } else {
-        await message.reply(result.message);
-      }
-    } else {
-      await message.reply(
-        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
-      );
-    }
-  } else {
-    // if messaege not empty
-    if (message.body.length > 0) {
-      await message.reply(
-        `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
-      );
-      console.log(
-        `Message does not end with "${registrationKeyword}", replying with hints.`
-      );
-    } else {
-      console.log(
-        `Message does not end with "${registrationKeyword}", ignoring.`
-      );
-    }
-  }
+  // // Check if the message ends with the registration keyword
+  // if (message.body.toLowerCase().endsWith(registrationKeyword.toLowerCase())) {
+  //   const parts = message.body.split("_");
+  //   if (parts.length === 4) {
+  //     const [name, address, phoneNumber, _] = parts;
+  //     const result = await appendToSheet([name, address, phoneNumber]);
+
+  //     if (result.success) {
+  //       // const media = await client.createMediaFromBase64(result.qrCodeImage);
+  //       const media = new MessageMedia(
+  //         "image/png",
+  //         result.qrCodeImage.split(",")[1]
+  //       );
+  //       // await message.reply(media);
+  //       await client.sendMessage(message.from, media, {
+  //         caption: QRCodeMessage,
+  //       });
+  //     } else {
+  //       await message.reply(result.message);
+  //     }
+  //   } else {
+  //     await message.reply(
+  //       `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+  //     );
+  //   }
+  // } else {
+  //   // if messaege not empty
+  //   if (message.body.length > 0) {
+  //     await message.reply(
+  //       `Format pesan tidak valid. Gunakan: nama_alamat_nomortelpon_${registrationKeyword}\n\nNomor ini hanya melayani pendaftaran otomatis sesuai format. Untuk keterangan pendaftaran dan pertanyaan lebih lanjut, hubungi ${mainContactPerson}`
+  //     );
+  //     console.log(
+  //       `Message does not end with "${registrationKeyword}", replying with hints.`
+  //     );
+  //   } else {
+  //     console.log(
+  //       `Message does not end with "${registrationKeyword}", ignoring.`
+  //     );
+  //   }
+  // }
 });
 
 // Initialize the client
